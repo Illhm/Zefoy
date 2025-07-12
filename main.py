@@ -1,10 +1,8 @@
 import asyncio
 from playwright.async_api import async_playwright
-import time
+import argparse
 
-video_url = "https://www.tiktok.com/@sezeeeen0/video/7518638187737107743"
-
-async def main():
+async def main(video_url: str):
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True)
         context = await browser.new_context()
@@ -36,4 +34,8 @@ async def main():
             print("⏳ استراحة 5 دقائق...")
             await asyncio.sleep(300)
 
-asyncio.run(main())
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Zefoy automation")
+    parser.add_argument("--url", required=True, help="TikTok video URL")
+    args = parser.parse_args()
+    asyncio.run(main(args.url))

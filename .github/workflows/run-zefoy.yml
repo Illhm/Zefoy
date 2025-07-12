@@ -1,0 +1,23 @@
+name: Run Zefoy Script
+
+on:
+  workflow_dispatch:
+    inputs:
+      video_url:
+        description: 'TikTok video URL'
+        required: true
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          playwright install --with-deps
+      - name: Run script
+        run: python main.py --url "${{ github.event.inputs.video_url }}"
