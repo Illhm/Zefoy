@@ -16,4 +16,4 @@ pip install -r requirements.txt
 # Install Playwright browsers
 playwright install --with-deps
 
-echo "Setup complete. Run: python main.py --url <VIDEO_URL>"
+echo "Setup complete. Run: python main.py --url <VIDEO_URL> --service 4"

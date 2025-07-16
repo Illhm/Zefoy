@@ -6,6 +6,10 @@ on:
       video_url:
         description: 'TikTok video URL'
         required: true
+      service:
+        description: 'Service option number (1-8)'
+        required: false
+        default: '4'
 
 jobs:
   run:
@@ -15,9 +19,13 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: '3.x'
+      - name: Install Chrome
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
           playwright install --with-deps
       - name: Run script
-        run: python main.py --url "${{ github.event.inputs.video_url }}"
+        run: python main.py --url "${{ github.event.inputs.video_url }}" --service ${{ github.event.inputs.service }}

@@ -8,14 +8,20 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import TimeoutException
 from webdriver_manager.chrome import ChromeDriverManager
+import argparse
 import os
 import time
 
 
 class Main:
-    def __init__(self):
+    def __init__(self, video_url: str | None = None, option: int | None = None, headless: bool = True):
+        self.video_url = video_url
+        self.option = option
+
         self.options = Options()
         self.options.add_argument("--disable-notifications")
+        if headless:
+            self.options.add_argument("--headless=new")
         service = Service(ChromeDriverManager().install())
         self.driver = webdriver.Chrome(service=service, options=self.options)
 
@@ -85,7 +91,8 @@ class Main:
             "Livestream"  #livestream
         ]
         self.discord = "https://discord.gg/DnwnCrvZv8"
-        self.option = 0
+        if self.option is None:
+            self.option = 0
 
 
     def clear_console(self):
@@ -161,7 +168,8 @@ class Main:
 
 
     def user_input_option(self):
-        self.option = int(input())
+        if self.option is None:
+            self.option = int(input())
         if self.option == 8:
             self.driver.get(self.discord)
         else:
@@ -180,8 +188,9 @@ class Main:
 
 
     def get_insert_tiktok_link(self):
-        print("[~] Send the Tiktok Link")
-        tiktok_link = input()
+        if not self.video_url:
+            print("[~] Send the Tiktok Link")
+            self.video_url = input()
         myElem = None
         try:
             myElem = WebDriverWait(self.driver, 2).until(EC.presence_of_element_located((By.XPATH, self.enter_video_url[self.option-1])))
@@ -190,7 +199,7 @@ class Main:
             print("[-] 006 Error - Cant Find Input Field")
             quit()
         myElem = WebDriverWait(self.driver, 2).until(EC.presence_of_element_located((By.XPATH, self.enter_video_url[self.option-1])))
-        myElem.send_keys(str(tiktok_link))
+        myElem.send_keys(str(self.video_url))
 
         time.sleep(2)
 
@@ -295,8 +304,14 @@ class Main:
         self.wait_for_captcha_solve()
 
 
-        self.display_button_list()
-        self.user_input_option()
+        if self.option is None:
+            self.display_button_list()
+            self.user_input_option()
+        else:
+            if self.option == 8:
+                self.driver.get(self.discord)
+            else:
+                self.click_button(self.option)
      
 
         time.sleep(1)
@@ -312,5 +327,11 @@ class Main:
 
 
 if __name__ == "__main__":
-    main = Main()
-    main.main()
+    parser = argparse.ArgumentParser(description="Zefoy automation")
+    parser.add_argument("--url", required=False, help="TikTok video URL")
+    parser.add_argument("--service", type=int, help="Service option number (1-8)")
+    parser.add_argument("--no-headless", action="store_true", help="Run browser with GUI")
+    args = parser.parse_args()
+
+    app = Main(video_url=args.url, option=args.service, headless=not args.no_headless)
+    app.main()
